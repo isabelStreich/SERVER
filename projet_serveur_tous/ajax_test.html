@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Test AJAX</title>
+</head>
+
+<body>
+    <h1>TEST AJAX</h1>
+    <hr>
+
+    <!-- Using REST API with AJAX calls ---------------- --------------------------------------->
+    <button id="get_all_button">Tous les payments</button><br>
+    Status: <b><span id="status"></span></b><br>
+    <div id="list"></div>
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script>
+        'use strict'
+        $(document).ready(function () {
+
+            // GET ALL button -----------------------------------------------------
+            $("#get_all_button").click(
+
+                function () {
+                    $("#status").html("Waiting for server...")
+                    $("#list").html("") // clear previous result
+                    $.get(
+                        'http://localhost/W12-PHP/projet_serveur/index.php?op=710',
+                        function (response, textStatus) {
+                            // this executes only on success code returned 2xx like 200, 201, etc..
+                            //console.log(response)
+                            $("#status").html(textStatus)
+
+                            // JSON.parse() converts string containing JSON
+                            // into actual JSON object with JSON.parse
+                            // PAS NÉCESSAIRE SI $content_type = 'Content-Type: application/json; charset=UTF-8';
+                            // let data_returned = JSON.parse(response)
+
+                            // dans le cas $content_type = 'Content-Type: application/json; charset=UTF-8';
+                            // pas de conversion à faire
+                            let data_returned = response
+
+                            // build html table with results
+                            var table_html = '<table>'
+                            table_html += '<th>customerNumber</th> <th>checkNumber</th> <th>paymentDate</th> <th>amount</th>'
+                            for (let i = 0; i < data_returned.length; i++) {
+                                table_html += '<tr><td>' + data_returned[i].customerNumber + '</td> <td>' + data_returned[i].checkNumber + '</td> <td>' + data_returned[i].paymentDate + '</td>  <td>' + data_returned[i].amount + '</td></tr>'
+                            }
+                            table_html += '</table>'
+                            $("#list").html(table_html)
+                        })
+
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            // this executes only on error with code other than 2xx
+                            // display response code
+                            $("#status").html(jqXHR.status)
+                            $("#status").append(' ' + errorThrown)
+                        })
+
+                        // if required .done() and .always() are also available
+                        .done(function () {
+                            // this executes only on success code returned 2xx like 200, 201, etc..
+                            //alert("second success");
+                        })
+                        .always(function () {
+                            // this always executes whatever the response code
+                            //alert("finished");
+                        });
+                }
+            )
+        })
+    </script>
+</body>
+
+</html>
